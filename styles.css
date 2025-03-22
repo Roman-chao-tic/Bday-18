@@ -1,1 +1,73 @@
+/* styles.css */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+    height: 100vh;
+}
 
+#envelope-container {
+    position: relative;
+}
+
+#envelope {
+    width: 300px;
+    height: 200px;
+    background-color: #fff;
+    border: 2px solid #000;
+    position: relative;
+    overflow: hidden;
+}
+
+#band {
+    width: 280px;
+    height: 20px;
+    background-color: #d4af37;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 5px;
+}
+
+#matchstick-container {
+    position: absolute;
+    top: 50%;
+    left: 500px;
+    cursor: pointer;
+}
+
+#matchstick {
+    width: 10px;
+    height: 100px;
+    background-color: #8b4513;
+    position: relative;
+}
+
+#head {
+    width: 10px;
+    height: 20px;
+    background-color: #ff0000;
+    position: absolute;
+    top: 0;
+}
+
+#card {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    display: none;
+}
+
+.card-page img {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
