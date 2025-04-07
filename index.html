@@ -2,117 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Happy Birthday!</title>
+  <title>Birthday Card</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      margin: 0;
-      padding: 0;
       background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
       overflow: hidden;
     }
 
-    .card {
-      background: white;
-      padding: 3rem;
-      border-radius: 25px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      max-width: 500px;
-      animation: fadeIn 2s ease;
+    .envelope {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      perspective: 1000px;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      color: #ff6f61;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1.2rem;
-      color: #333;
-    }
-
-    .photo {
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 300px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .confetti {
-      position: fixed;
+    .flap {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 100px solid #d46a6a;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1000;
+      z-index: 3;
+      transform-origin: top;
+      transition: transform 1s ease;
+    }
+
+    .envelope.open .flap {
+      transform: rotateX(-180deg);
+    }
+
+    .seal {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: gold;
+      border-radius: 50%;
+      top: 70px;
+      left: 120px;
+      z-index: 4;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .seal:hover {
+      transform: scale(1.1);
+    }
+
+    .bottom-envelope {
+      position: absolute;
+      width: 300px;
+      height: 200px;
+      background-color: #d46a6a;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .card {
+      position: absolute;
+      width: 260px;
+      height: 160px;
+      background-color: white;
+      top: 20px;
+      left: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 1s ease;
+      z-index: 2;
+      border-radius: 8px;
+    }
+
+    .envelope.open .card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card h1 {
+      color: #d46a6a;
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 1em;
+      color: #333;
     }
   </style>
 </head>
 <body>
 
-  <canvas class="confetti"></canvas>
-
-  <div class="card">
-    <h1>🎉 Happy Birthday, [Name]! 🎂</h1>
-    <p>Wishing you a day filled with love, laughter, and cake! 🥳</p>
-    <img class="photo" src="https://placekitten.com/300/200" alt="Birthday Image">
+  <div class="envelope" id="envelope">
+    <div class="flap"></div>
+    <div class="seal" id="seal">🎉</div>
+    <div class="bottom-envelope"></div>
+    <div class="card">
+      <h1>Happy Birthday!</h1>
+      <p>Wishing you joy, love, and all your favorite things. 🎂🎈🎁</p>
+    </div>
   </div>
 
   <script>
-    // Confetti effect
-    const canvas = document.querySelector('.confetti');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const seal = document.getElementById('seal');
+    const envelope = document.getElementById('envelope');
 
-    const confetti = [];
-    const colors = ['#ff6f61', '#ffd700', '#00c2ff', '#adff2f'];
-
-    function Confetto() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height - canvas.height;
-      this.radius = Math.random() * 6 + 4;
-      this.color = colors[Math.floor(Math.random() * colors.length)];
-      this.speed = Math.random() * 3 + 2;
-      this.swing = Math.random() * 2;
-    }
-
-    function drawConfetti() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < confetti.length; i++) {
-        let c = confetti[i];
-        ctx.beginPath();
-        ctx.arc(c.x + Math.sin(c.y * 0.05) * 10, c.y, c.radius, 0, Math.PI * 2);
-        ctx.fillStyle = c.color;
-        ctx.fill();
-        c.y += c.speed;
-        if (c.y > canvas.height) {
-          c.y = -10;
-          c.x = Math.random() * canvas.width;
-        }
-      }
-      requestAnimationFrame(drawConfetti);
-    }
-
-    for (let i = 0; i < 150; i++) {
-      confetti.push(new Confetto());
-    }
-
-    drawConfetti();
+    seal.addEventListener('click', () => {
+      envelope.classList.add('open');
+    });
   </script>
+
 </body>
 </html>
