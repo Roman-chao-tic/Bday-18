@@ -27,17 +27,7 @@
     }
 
     .flap {
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-left: 250px solid transparent;
-      border-right: 250px solid transparent;
-      border-bottom: 160px solid #f5deb3;
-      top: 0;
-      left: 0;
-      z-index: 3;
-      transform-origin: top;
-      transition: transform 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      display: none;
     }
 
     .envelope.open .flap,
@@ -70,7 +60,7 @@
     }
 
     .seal::before {
-      content: "\1F430"; /* 🐰 - bunny symbol */
+      content: "\1F430";
       font-size: 2.4rem;
       filter: drop-shadow(0 0 2px #000);
     }
@@ -119,56 +109,195 @@
       position: absolute;
       width: 440px;
       height: 280px;
-      background-color: white;
       top: 20px;
       left: 30px;
-      padding: 30px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 1.2s ease;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      transform: rotateY(0deg);
       z-index: 2;
-      border-radius: 12px;
     }
 
-    .envelope.open .card {
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      background: linear-gradient(to bottom right, #fff1e6, #ffe5b4);
+      border: 3px dashed #ff9f55;
+      background-image: url('https://www.transparenttextures.com/patterns/subtle-dots.png');
+    }
+
+    .card-front {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: rotateY(0deg);
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+    }
+
+    .envelope.open .card-front {
       opacity: 1;
-      transform: translateY(0);
+    }
+
+    .flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card h1, .card p {
+      text-align: center;
     }
 
     .card h1 {
-      color: #d46a6a;
-      font-size: 2em;
-      margin-bottom: 15px;
+      color: #ff5c5c;
+      font-size: 2.2em;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px #fff;
     }
 
     .card p {
-      font-size: 1.2em;
-      color: #333;
+      font-size: 1.4em;
+      color: #4b2e2e;
+      font-weight: bold;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      animation: confetti-fall 3s linear infinite;
+      z-index: 10;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-10px) rotate(0); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    .flip-button {
+      margin-top: 20px;
+      display: none;
+      justify-content: center;
+      z-index: 3;
+      position: absolute;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .flip-button button {
+      padding: 10px 20px;
+      background-color: #ff7f50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1em;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .butterfly {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3d/Butterfly_icon.png');
+      background-size: cover;
+      animation: fly 5s ease-in-out infinite;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    @keyframes fly {
+      0% { transform: translate(0, 0) rotate(0); }
+      25% { transform: translate(-50px, -100px) rotate(30deg); }
+      50% { transform: translate(100px, -50px) rotate(-30deg); }
+      75% { transform: translate(-80px, 30px) rotate(15deg); }
+      100% { transform: translate(0, 0) rotate(0); }
     }
   </style>
 </head>
 <body>
-
   <div class="envelope" id="envelope">
     <div class="flap"></div>
     <div class="seal" id="seal"></div>
     <div class="wax-drip"></div>
     <div class="bottom-envelope"></div>
-    <div class="card">
-      <h1>DEATH 0<br>CHUTKI 18</h1>
-      <p>HAPPY BIRTHDAY HONEEYY 🤗 🥳🎉</p>
+    <div class="card" id="card">
+      <div class="card-front">
+        <h1>DEATH 0<br>CHUTKI 18</h1>
+        <p>HAPPY BIRTHDAY HONEYY 🤗🥳🎉</p>
+      </div>
+      <div class="card-back" id="cardBack">
+        <img src="https://via.placeholder.com/440x280" alt="Birthday Collage">
+      </div>
+    </div>
+    <div class="flip-button" id="flipBtn">
+      <button onclick="flipCard()">Flip Card</button>
     </div>
   </div>
 
   <script>
     const seal = document.getElementById('seal');
     const envelope = document.getElementById('envelope');
+    const card = document.getElementById('card');
+    const flipBtn = document.getElementById('flipBtn');
+
+    function createConfetti() {
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        confetti.style.width = confetti.style.height = (Math.random() * 8 + 4) + 'px';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 5000);
+      }
+    }
+
+    function createButterflies() {
+      for (let i = 0; i < 5; i++) {
+        const butterfly = document.createElement('div');
+        butterfly.classList.add('butterfly');
+        butterfly.style.top = Math.random() * 80 + 'vh';
+        butterfly.style.left = Math.random() * 100 + 'vw';
+        butterfly.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        document.body.appendChild(butterfly);
+        setTimeout(() => butterfly.remove(), 8000);
+      }
+    }
 
     seal.addEventListener('click', () => {
       envelope.classList.add('open');
+      createConfetti();
+      createButterflies();
+      setTimeout(() => flipBtn.style.display = 'flex', 1200);
     });
-  </script>
 
+    function flipCard() {
+      card.classList.toggle('flipped');
+    }
+  </script>
 </body>
 </html>
