@@ -2,23 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Birthday Envelope</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background-color: #000;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       position: relative;
     }
 
     .container {
+      width: 90vw;
+      max-width: 600px;
+      aspect-ratio: 3 / 2;
       position: relative;
-      width: 600px;
-      height: 400px;
-      margin: auto;
-      top: 50%;
-      transform: translateY(-50%);
       perspective: 1000px;
       z-index: 1;
     }
@@ -33,8 +41,8 @@
       top: 0;
       left: 0;
       transition: transform 1s ease;
-      z-index: 2;
       transform-origin: bottom center;
+      z-index: 2;
     }
 
     .envelope.open {
@@ -43,11 +51,11 @@
 
     .seal-click-area {
       position: absolute;
-      bottom: 110px;
+      bottom: 18%;
       left: 50%;
       transform: translateX(-50%);
-      width: 80px;
-      height: 80px;
+      width: 15%;
+      aspect-ratio: 1;
       cursor: pointer;
       z-index: 3;
     }
@@ -57,7 +65,7 @@
       height: 100%;
       background-color: #fff;
       color: #333;
-      padding: 30px;
+      padding: 5%;
       box-sizing: border-box;
       position: absolute;
       top: 0;
@@ -78,16 +86,17 @@
     }
 
     .card h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      margin-bottom: 1rem;
       color: #e91e63;
     }
 
     .card p {
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 4vw, 1.4rem);
       line-height: 1.5;
     }
 
+    /* Glitter Animation */
     .glitter {
       position: absolute;
       top: -10px;
@@ -112,6 +121,7 @@
       }
     }
 
+    /* Confetti */
     .confetti {
       position: absolute;
       width: 10px;
@@ -132,7 +142,7 @@
       }
     }
 
-    /* VIDEO FULLSCREEN */
+    /* Video Fullscreen */
     #video-container {
       position: fixed;
       top: 0;
@@ -161,14 +171,14 @@
     <div class="card" id="card">
       <h1>YOU: 18<br>DEATH: 0</h1>
       <p>Happy Birthday, Chutki! 💖🎂✨<br>
-        You're my sunshine and sparkles! 🌈🧁🦋</p>
+      You're my sunshine and sparkles! 🌈🧁🦋</p>
     </div>
   </div>
 
   <!-- Glitter Container -->
   <div id="glitter-container"></div>
 
-  <!-- VIDEO -->
+  <!-- Video -->
   <div id="video-container">
     <video id="bday-video" src="bday-collage.mp4" autoplay></video>
   </div>
@@ -179,25 +189,24 @@
       document.getElementById('card').classList.add('show');
       launchConfetti();
 
-      // Delay 5s after card shows, then play video
+      // After 5 seconds, hide everything and show video
       setTimeout(() => {
         document.getElementById('main-content').style.display = 'none';
         document.getElementById('video-container').style.display = 'flex';
         const video = document.getElementById('bday-video');
         video.play();
-        video.pause(); // trigger load
+        video.pause(); // force load
         video.currentTime = 0;
         video.play();
 
-        // Stop video from going black at end
+        // Hold last frame when done
         video.addEventListener('ended', () => {
           video.pause();
-          video.currentTime = video.duration - 0.01; // Stay on last frame
+          video.currentTime = video.duration - 0.01;
         });
       }, 5000);
     }
 
-    // Confetti animation
     function launchConfetti() {
       for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
@@ -217,7 +226,6 @@
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    // Glitter animation (looped stars falling)
     function createGlitter() {
       const glitter = document.createElement('div');
       glitter.classList.add('glitter');
