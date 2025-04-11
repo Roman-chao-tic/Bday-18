@@ -2,94 +2,233 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birthday Card</title>
+  <title>Birthday Envelope</title>
   <style>
-    /* existing styles remain unchanged */
-    /* ... */
-    .card-back video {
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      perspective: 1000px;
+      z-index: 1;
+    }
+
+    .envelope {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 18px;
+      background-image: url('envelope.png');
+      background-size: cover;
+      background-position: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 1s ease;
+      z-index: 2;
+      transform-origin: bottom center;
+    }
+
+    .envelope.open {
+      transform: rotateX(100deg);
+    }
+
+    .seal-click-area {
+      position: absolute;
+      bottom: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      color: #333;
+      padding: 30px;
+      box-sizing: border-box;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      z-index: 1;
+      transition: opacity 1s ease 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border-radius: 12px;
+    }
+
+    .card.show {
+      opacity: 1;
+    }
+
+    .card h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #e91e63;
+    }
+
+    .card p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
+
+    .glitter {
+      position: absolute;
+      top: -10px;
+      width: 4px;
+      height: 4px;
+      background: radial-gradient(circle, #fff 20%, transparent 70%);
+      animation: glitter-fall linear infinite;
+      pointer-events: none;
+      opacity: 0.8;
+      z-index: 0;
+      border-radius: 50%;
+    }
+
+    @keyframes glitter-fall {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(100vh) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      animation: confetti-fall 3s ease-out forwards;
+      z-index: 10;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y)) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* VIDEO FULLSCREEN */
+    #video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: black;
     }
   </style>
 </head>
 <body>
-  <audio id="openSound" src="your-sound-file.mp3" preload="auto"></audio>
-
-  <div class="envelope" id="envelope">
-    <div class="flap"></div>
-    <div class="seal" id="seal"></div>
-    <div class="wax-drip"></div>
-    <div class="bottom-envelope"></div>
+  <div class="container" id="main-content">
+    <div class="envelope" id="envelope"></div>
+    <div class="seal-click-area" onclick="openEnvelope()"></div>
     <div class="card" id="card">
-      <div class="card-front">
-        <h1>DEATH 0<br>CHUTKI 18</h1>
-        <p>HAPPY BIRTHDAY HONEYY!!!!!! 🤗🥳🎉</p>
-      </div>
-      <div class="card-back" id="cardBack">
-        <video src="https://roman-chao-tic.github.io/Bday-18/bday-collage.mp4" autoplay muted playsinline onended="this.pause(); this.currentTime = this.duration;" controls={false}></video>
-      </div>
+      <h1>YOU: 18<br>DEATH: 0</h1>
+      <p>Happy Birthday, Chutki! 💖🎂✨<br>
+        You're my sunshine and sparkles! 🌈🧁🦋</p>
     </div>
   </div>
 
-  <script>
-    const seal = document.getElementById('seal');
-    const envelope = document.getElementById('envelope');
-    const card = document.getElementById('card');
-    const openSound = document.getElementById('openSound');
+  <!-- Glitter Container -->
+  <div id="glitter-container"></div>
 
-    function createConfetti() {
-      for (let i = 0; i < 150; i++) {
+  <!-- VIDEO -->
+  <div id="video-container">
+    <video id="bday-video" src="bday-collage.mp4" autoplay></video>
+  </div>
+
+  <script>
+    function openEnvelope() {
+      document.getElementById('envelope').classList.add('open');
+      document.getElementById('card').classList.add('show');
+      launchConfetti();
+
+      // Delay 5s after card shows, then play video
+      setTimeout(() => {
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('video-container').style.display = 'flex';
+        const video = document.getElementById('bday-video');
+        video.play();
+        video.pause(); // trigger load
+        video.currentTime = 0;
+        video.play();
+
+        // Stop video from going black at end
+        video.addEventListener('ended', () => {
+          video.pause();
+          video.currentTime = video.duration - 0.01; // Stay on last frame
+        });
+      }, 5000);
+    }
+
+    // Confetti animation
+    function launchConfetti() {
+      for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
         confetti.classList.add('confetti');
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.top = '-10px';
-        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-        confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
-        confetti.style.width = confetti.style.height = (Math.random() * 10 + 5) + 'px';
+        confetti.style.backgroundColor = getRandomColor();
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = `50%`;
+        confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 300}px`);
+        confetti.style.setProperty('--y', `${(Math.random() - 0.2) * 300}px`);
         document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 6000);
+        setTimeout(() => confetti.remove(), 3000);
       }
     }
 
-    function createSparkles() {
-      for (let i = 0; i < 30; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('sparkle');
-        sparkle.style.left = Math.random() * 100 + 'vw';
-        sparkle.style.top = Math.random() * 100 + 'vh';
-        sparkle.style.animationDuration = (Math.random() * 1.5 + 0.5) + 's';
-        document.body.appendChild(sparkle);
-        setTimeout(() => sparkle.remove(), 3000);
-      }
+    function getRandomColor() {
+      const colors = ['#e91e63', '#ffc107', '#4caf50', '#00bcd4', '#9c27b0', '#ff5722'];
+      return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    function createButterflies() {
-      for (let i = 0; i < 5; i++) {
-        const butterfly = document.createElement('div');
-        butterfly.classList.add('butterfly');
-        butterfly.style.top = Math.random() * 80 + 'vh';
-        butterfly.style.left = Math.random() * 100 + 'vw';
-        butterfly.style.animationDuration = (Math.random() * 3 + 3) + 's';
-        document.body.appendChild(butterfly);
-        setTimeout(() => butterfly.remove(), 8000);
-      }
+    // Glitter animation (looped stars falling)
+    function createGlitter() {
+      const glitter = document.createElement('div');
+      glitter.classList.add('glitter');
+      glitter.style.left = `${Math.random() * 100}vw`;
+      glitter.style.animationDuration = `${3 + Math.random() * 2}s`;
+      glitter.style.opacity = Math.random();
+      document.getElementById('glitter-container').appendChild(glitter);
+      setTimeout(() => glitter.remove(), 5000);
     }
 
-    seal.addEventListener('click', () => {
-      createConfetti();
-      createSparkles();
-      createButterflies();
-      envelope.classList.add('open');
-      openSound.play();
-
-      // Auto flip card after 5 seconds
-      setTimeout(() => {
-        card.classList.add('flipped');
-      }, 5000);
-    });
+    setInterval(createGlitter, 100);
   </script>
 </body>
 </html>
