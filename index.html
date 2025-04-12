@@ -46,7 +46,8 @@
     }
 
     .envelope.open {
-      transform: rotateX(100deg);
+      transform: rotateX(100deg) translateZ(-1px);
+      transform-origin: bottom center;
     }
 
     .seal-click-area {
@@ -60,9 +61,7 @@
   z-index: 3;
   touch-action: manipulation;
 }
-
-    }
-
+    
     .card {
       width: 100%;
       height: 100%;
