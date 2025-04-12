@@ -59,15 +59,9 @@
   cursor: pointer;
   z-index: 3;
   touch-action: manipulation;
-  border-radius: 50%;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.seal-click-area:hover,
-.seal-click-area:active {
-  box-shadow: 0 0 25px 8px rgba(255, 192, 203, 0.6), 0 0 12px 4px rgba(255, 105, 180, 0.8);
-  transform: scale(1.1);
-}
+    }
 
     .card {
       width: 100%;
@@ -181,7 +175,7 @@
     </div>
   </div>
 
-  <!-- Glitter -->
+  <!-- Glitter container -->
   <div id="glitter-container"></div>
 
   <!-- Background Music -->
@@ -202,22 +196,29 @@
 
   <script>
     const video = document.getElementById('bday-video');
-    video.load(); // Preload early for smoothness
+    video.load(); // preload video early
 
     function openEnvelope() {
       document.getElementById('envelope').classList.add('open');
       document.getElementById('card').classList.add('show');
       launchConfetti();
 
+      // Start background music
+      const music = document.getElementById('bg-music');
+      music.volume = 0.5;
+      music.play().catch(() => {
+        console.warn("Music autoplay was blocked");
+      });
+
       setTimeout(() => {
         document.getElementById('main-content').style.display = 'none';
         document.getElementById('video-container').style.display = 'flex';
         video.play();
-        video.pause(); // Force load
+        video.pause(); // force preload
         video.currentTime = 0;
         video.play();
 
-        // Stay on last frame when video ends
+        // Stay on final frame
         video.addEventListener('ended', () => {
           video.pause();
           video.currentTime = video.duration - 0.01;
@@ -226,14 +227,32 @@
     }
 
     function launchConfetti() {
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 150; i++) {
         const confetti = document.createElement('div');
         confetti.classList.add('confetti');
+
+        // Random start position
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.top = `${Math.random() * 100}vh`;
+
+        // Size & shape
+        const size = Math.random() * 8 + 4;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.borderRadius = `${Math.random() < 0.3 ? '50%' : '0'}`;
+
+        // Color
         confetti.style.backgroundColor = getRandomColor();
-        confetti.style.left = `${Math.random() * 100}%`;
-        confetti.style.top = `50%`;
-        confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 300}px`);
-        confetti.style.setProperty('--y', `${(Math.random() - 0.2) * 300}px`);
+
+        // Random flight path
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 200 + Math.random() * 500;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        confetti.style.setProperty('--x', `${x}px`);
+        confetti.style.setProperty('--y', `${y}px`);
+
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
         document.body.appendChild(confetti);
         setTimeout(() => confetti.remove(), 3000);
       }
